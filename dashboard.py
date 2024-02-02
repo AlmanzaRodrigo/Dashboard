@@ -1,5 +1,5 @@
 import ttkbootstrap as tk
-from ttkbootstrap import font, Style
+from ttkbootstrap import font
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 from data import CAPTURE_BY_MONTH, CAPTURE_BY_SPECIES, CAPTURE_BY_STATE, CAPTURE_BY_PORT
@@ -27,127 +27,88 @@ class Dashboard():
         # crate widgets
         sidebar_frame = tk.Frame(self.root, bootstyle="primary")
         charts_frame = tk.Frame(self.root)
-        upper_frame = tk.Frame(charts_frame)
-        lower_frame = tk.Frame(charts_frame)
-        chart1 = FigureCanvasTkAgg(self.chart_by_month, upper_frame)
-        chart2 = FigureCanvasTkAgg(self.chart_by_species, upper_frame)
-        chart3 = FigureCanvasTkAgg(self.chart_by_state, lower_frame)
-        chart4 = FigureCanvasTkAgg(self.chart_by_port, lower_frame)
+        charts = FigureCanvasTkAgg(self.charts_frame, charts_frame)
+        sidebar_title = tk.Label(sidebar_frame, text="Dashboard",
+                                 font=("default", 15, font.BOLD),
+                                 background="#6071D7", foreground="#caf0f8",
+                                 padding=(20,15))
         sidebar_paragraph = tk.Label(sidebar_frame, text=SIDEBAR_TEXT,
                                      font=("default", 9, font.BOLD),
-                                     background="#6071d7", foreground="#caf0f8",
-                                     padding=(20,20))
+                                     background="#6071D7", foreground="#caf0f8",
+                                     anchor="n", padding=(20,0))
+        sidebar_author = tk.Label(sidebar_frame, text="Author: Almanza Rodrigo Hernan",
+                                 font=("default", 7, font.BOLD),
+                                 background="#6071D7", foreground="#caf0f8",
+                                 padding=(20,10))
         
         # draw widgets
         sidebar_frame.pack(side="left", fill="y")
-        charts_frame.pack(side="left", fill="both", expand="yes")
-        upper_frame.pack()
-        lower_frame.pack()
-        chart1.draw()
-        chart1.get_tk_widget().pack(side="left", fill="both", padx=20, pady=20)
-        chart2.draw()
-        chart2.get_tk_widget().pack(side="left", fill="both", padx=20, pady=20)
-        chart3.draw()
-        chart3.get_tk_widget().pack(side="left", fill="both", padx=20, pady=20)
-        chart4.draw()
-        chart4.get_tk_widget().pack(side="left", fill="both", padx=20, pady=20)
-        sidebar_paragraph.pack(fill="both", expand="yes")
+        charts_frame.pack(side="left", fill="both", expand=True, ipadx=100)
+        charts.get_tk_widget().pack(side="left", fill="both", expand=True, pady="0,10")
+        sidebar_title.pack(fill="x")
+        sidebar_paragraph.pack(fill="both", expand=True)
+        sidebar_author.pack(fill="both", expand=True)
     
-    def plot_bar_chart(self, data, title, xlabel, ylabel, xticks_fontsize=11):
+    def plot_bar_chart(self, chart, data, title, xlabel, ylabel, xticks_fontsize):
         """
-        The plot_bar_chart function plots a bar chart.
+        The plot_bar_chart function sets up a bar chart to be plotted.
         
+        :param chart: A chart object
         :param data: The data that will be plotted
         :param title: Set the title of the bar chart
         :param xlabel: Set the label for the x-axis
         :param ylabel: Set the label for the y-axis
         :param xticks_fontsize: Set the font size of the x axis labels
-        :return: A chart object
         """
-        chart, axes = plt.subplots(figsize=(4,3), layout='constrained')
-        axes.bar(data.keys(), data.values())
-        axes.set_title(title)
-        axes.set_xlabel(xlabel)
-        axes.set_ylabel(ylabel)
-        plt.xticks(rotation=90, fontsize=xticks_fontsize)
-        return chart
-    
-    def plot_area_chart(self, data, title, xlabel, ylabel, xticks_fontsize=11):
+        data_keys = [key[:10] for key in data.keys()]
+        chart.bar(data_keys, data.values())
+        chart.set(title=title, xlabel=xlabel, ylabel=ylabel)
+        for label in chart.get_xticklabels():
+            label.set_rotation(90)    
+            label.set_fontsize(xticks_fontsize)
+
+    def plot_line_chart(self, chart, data, title, xlabel, ylabel, xticks_fontsize):
         """
-        The plot_area_chart function plots an area chart.
+        The plot_line_chart function sets up a line chart to be plotted.
         
-        :param data: The data that will be used to plot the chart
-        :param title: Set the title of the chart
-        :param xlabel: Set the label of the x-axis
-        :param ylabel: Set the y-axis label
-        :param xticks_fontsize: Set the font size of the x-axis ticks
-        :return: A chart object
+        :param chart: A chart object
+        :param data: The data that will be plotted
+        :param title: Set the title of the bar chart
+        :param xlabel: Set the label for the x-axis
+        :param ylabel: Set the label for the y-axis
+        :param xticks_fontsize: Set the font size of the x axis labels
         """
-        chart, axes = plt.subplots(figsize=(4,3), layout="constrained")
-        axes.fill_between(data.keys(), data.values())
-        axes.set_title(title)
-        axes.set_xlabel(xlabel)
-        axes.set_ylabel(ylabel)
-        plt.xticks(rotation=90, fontsize=xticks_fontsize)
-        return chart
+        data_keys = [key[:3] for key in data.keys()]
+        chart.plot(data_keys, data.values())
+        chart.set(title=title, xlabel=xlabel, ylabel=ylabel)
+        for label in chart.get_xticklabels():
+            label.set_rotation(90)
+            label.set_fontsize(xticks_fontsize)
     
-    def plot_line_chart(self, data, title, xlabel, ylabel, xticks_fontsize=11):
+    def plot_pie_chart(self, chart, data, title):
         """
-        The plot_line_chart function plots a line chart.
+        The plot_pie_chart function sets up a pie chart to be plotted.
         
-        :param data: The data that will be used to plot the chart
-        :param title: Set the title of the chart
-        :param xlabel: Set the label of the x-axis
-        :param ylabel: Set the y-axis label
-        :param xticks_fontsize: Set the font size of the x-axis ticks
-        :return: A chart object
+        :param chart: A chart object
+        :param data: The data that will be plotted
+        :param title: Set the title of the bar chart
         """
-        chart, axes = plt.subplots(figsize=(4,3), layout="constrained")
-        axes.plot(data.keys(), data.values())
-        axes.set_title(title)
-        axes.set_xlabel(xlabel)
-        axes.set_ylabel(ylabel)
-        plt.xticks(rotation=90, fontsize=xticks_fontsize)
-        return chart
-    
-    def plot_pie_chart(self, data, title):
-        """
-        The plot_pie_chart function plots a pie chart.
-        
-        :param data: The data that will be used to plot the chart
-        :param title: Set the title of the chart
-        :param xlabel: Set the label of the x-axis
-        :param ylabel: Set the y-axis label
-        :param xticks_fontsize: Set the font size of the x-axis ticks
-        :return: A chart object
-        """
-        chart, axes = plt.subplots(figsize=(4,3), layout="constrained")
-        axes.pie(data.values(), labels=data.keys())
-        axes.set_title(title)
-        return chart
+        chart.pie(data.values(), labels=data.keys())
+        chart.set_title(title)
 
     def create_chart_objects(self):
         """
-        The create_chart_objects function creates the chart objects for each of the charts.
+        The create_chart_objects function creates the chart objects for each imported data.
         
         :return: None
         """
-        self.chart_by_month = self.plot_line_chart(CAPTURE_BY_MONTH,
-                                                  "Capture by Month",
-                                                  "Month",
-                                                  "Capture")
-        self.chart_by_species = self.plot_bar_chart(CAPTURE_BY_SPECIES,
-                                                    "Capture by Species",
-                                                    "Species",
-                                                    "Capture",
-                                                    7)
-        self.chart_by_state = self.plot_pie_chart(CAPTURE_BY_STATE,
-                                                    "Capture by State")
-        self.chart_by_port = self.plot_bar_chart(CAPTURE_BY_PORT,
-                                                    "Capture by State",
-                                                    "State",
-                                                    "Capture",
-                                                    7)
+        cframe, ((chart1, chart2),(chart3, chart4)) = plt.subplots(nrows=2, ncols=2)
+        self.plot_line_chart(chart1, CAPTURE_BY_MONTH, "Capture by Month", "Month", "Capture","x-small")
+        self.plot_bar_chart(chart2, CAPTURE_BY_SPECIES, "Capture by Species", "Species", "Capture", "x-small")
+        self.plot_pie_chart(chart3, CAPTURE_BY_STATE, "Capture by State")
+        self.plot_bar_chart(chart4, CAPTURE_BY_PORT, "Capture by Port", "Port", "Capture", "x-small")
+        plt.tight_layout()
+        self.charts_frame = cframe
         
     def on_closing(self):
         """
