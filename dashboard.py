@@ -12,19 +12,20 @@ class Dashboard():
                                                             "#6071d7",
                                                             "#6878CF",
                                                             "#2C40B2"])
-        self.PARAGRAPH = SIDEBAR_TEXT
-
     
     def create_gui(self):
-        style1 = Style()
-        style1.configure("primary.TFrame")
-
+        """
+        The create_gui function creates the GUI for the dashboard.
+        
+        :return: None
+        """
         # create window
         self.root = tk.Window()
         self.root.title("Dashboard")
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         # crate widgets
-        sidebar_frame = tk.Frame(self.root, bootstyle="primary", style="primary.TFrame")
+        sidebar_frame = tk.Frame(self.root, bootstyle="primary")
         charts_frame = tk.Frame(self.root)
         upper_frame = tk.Frame(charts_frame)
         lower_frame = tk.Frame(charts_frame)
@@ -32,7 +33,7 @@ class Dashboard():
         chart2 = FigureCanvasTkAgg(self.chart_by_species, upper_frame)
         chart3 = FigureCanvasTkAgg(self.chart_by_state, lower_frame)
         chart4 = FigureCanvasTkAgg(self.chart_by_port, lower_frame)
-        sidebar_paragraph = tk.Label(sidebar_frame, text=self.PARAGRAPH,
+        sidebar_paragraph = tk.Label(sidebar_frame, text=SIDEBAR_TEXT,
                                      font=("default", 9, font.BOLD),
                                      background="#6071d7", foreground="#caf0f8",
                                      padding=(20,20))
@@ -53,6 +54,16 @@ class Dashboard():
         sidebar_paragraph.pack(fill="both", expand="yes")
     
     def plot_bar_chart(self, data, title, xlabel, ylabel, xticks_fontsize=11):
+        """
+        The plot_bar_chart function plots a bar chart.
+        
+        :param data: The data that will be plotted
+        :param title: Set the title of the bar chart
+        :param xlabel: Set the label for the x-axis
+        :param ylabel: Set the label for the y-axis
+        :param xticks_fontsize: Set the font size of the x axis labels
+        :return: A chart object
+        """
         chart, axes = plt.subplots(figsize=(4,3), layout='constrained')
         axes.bar(data.keys(), data.values())
         axes.set_title(title)
@@ -62,6 +73,16 @@ class Dashboard():
         return chart
     
     def plot_area_chart(self, data, title, xlabel, ylabel, xticks_fontsize=11):
+        """
+        The plot_area_chart function plots an area chart.
+        
+        :param data: The data that will be used to plot the chart
+        :param title: Set the title of the chart
+        :param xlabel: Set the label of the x-axis
+        :param ylabel: Set the y-axis label
+        :param xticks_fontsize: Set the font size of the x-axis ticks
+        :return: A chart object
+        """
         chart, axes = plt.subplots(figsize=(4,3), layout="constrained")
         axes.fill_between(data.keys(), data.values())
         axes.set_title(title)
@@ -71,6 +92,16 @@ class Dashboard():
         return chart
     
     def plot_line_chart(self, data, title, xlabel, ylabel, xticks_fontsize=11):
+        """
+        The plot_line_chart function plots a line chart.
+        
+        :param data: The data that will be used to plot the chart
+        :param title: Set the title of the chart
+        :param xlabel: Set the label of the x-axis
+        :param ylabel: Set the y-axis label
+        :param xticks_fontsize: Set the font size of the x-axis ticks
+        :return: A chart object
+        """
         chart, axes = plt.subplots(figsize=(4,3), layout="constrained")
         axes.plot(data.keys(), data.values())
         axes.set_title(title)
@@ -80,12 +111,27 @@ class Dashboard():
         return chart
     
     def plot_pie_chart(self, data, title):
+        """
+        The plot_pie_chart function plots a pie chart.
+        
+        :param data: The data that will be used to plot the chart
+        :param title: Set the title of the chart
+        :param xlabel: Set the label of the x-axis
+        :param ylabel: Set the y-axis label
+        :param xticks_fontsize: Set the font size of the x-axis ticks
+        :return: A chart object
+        """
         chart, axes = plt.subplots(figsize=(4,3), layout="constrained")
         axes.pie(data.values(), labels=data.keys())
         axes.set_title(title)
         return chart
-    
+
     def create_chart_objects(self):
+        """
+        The create_chart_objects function creates the chart objects for each of the charts.
+        
+        :return: None
+        """
         self.chart_by_month = self.plot_line_chart(CAPTURE_BY_MONTH,
                                                   "Capture by Month",
                                                   "Month",
@@ -102,8 +148,25 @@ class Dashboard():
                                                     "State",
                                                     "Capture",
                                                     7)
+        
+    def on_closing(self):
+        """
+        The on_closing function is called when the user clicks on the 'X' button in
+        the upper right corner of a window.  It closes all open figures and destroys
+        the root window, which causes the program to exit.
+        
+        :return: None
+        """
+        plt.close("all")
+        self.root.destroy()
     
     def run(self):
+        """
+        The run function is the main function of the class. It creates the GUI
+        and chart objects.
+            
+        :return: None
+        """
         self.create_chart_objects()
         self.create_gui()
         self.root.mainloop()
